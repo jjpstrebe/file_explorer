@@ -2,14 +2,26 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '../styles/Home.module.css'
+import utilStyles from '../styles/utils.module.sass'
 import Link from 'next/link';
 import Layout, { siteTitle } from '../components/layout';
+import { getConfigData } from '../util/config';
 
 
 const inter = Inter({ subsets: ['latin'] })
 
 
-export default function Home() {
+export async function getStaticProps() {
+  const allConfigData = getConfigData();
+  return {
+    props: {
+      allConfigData,
+    },
+  };
+}
+
+
+export default function Home({ allConfigData }) {
   return (
     <Layout home>
       <Head>
@@ -45,6 +57,18 @@ export default function Home() {
         </div>
 
         <div className={styles.center}>
+          <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
+            <h2 className={utilStyles.headingLg}>Configuration Files</h2>
+            <ul className={utilStyles.list}>
+              {allConfigData.map(({ id, data }) => (
+                <li className={utilStyles.listItem} key={id}>
+                  {id}
+                  <br />
+                  {data}
+                </li>
+              ))}
+            </ul>
+          </section>
           <Image
             className={styles.logo}
             src="/next.svg"
