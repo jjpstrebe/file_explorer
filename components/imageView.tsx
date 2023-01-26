@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'
 import useSWR from 'swr'
@@ -21,6 +22,7 @@ const fetcher = (...args) => fetch(...args).then(res => res.json())
 
 
 export default function ImageView({ }) {
+  const [index, setIndex] = useState(-1);
   const { data, error, isLoading } = useSWR('/api/images', fetcher)
   if (error) {
     console.log('Failed to get images');
@@ -29,7 +31,7 @@ export default function ImageView({ }) {
   if (isLoading) return <div>loading...</div>
   return (
     <div>
-      <PhotoAlbum layout="rows" photos={data} renderPhoto={NextJsImage} />
+      <PhotoAlbum layout="rows" photos={data} renderPhoto={NextJsImage} onClick={({ index }) => setIndex(index)} />
     </div>
   );
 }
