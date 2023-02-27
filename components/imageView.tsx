@@ -18,12 +18,8 @@ const NextJsImage: React.FC<RenderPhotoProps> = ({
 );
 
 
-const fetcher = (...args) => fetch(...args).then(res => res.json())
-
-
-export default function ImageView({ }) {
+export default function ImageView({ data, error, isLoading }) {
   const [index, setIndex] = useState(-1);
-  const { data, error, isLoading } = useSWR('/api/images', fetcher)
   if (error) {
     console.log('Failed to get images');
     return <div>failed to load</div>

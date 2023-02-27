@@ -34,6 +34,124 @@ import FileTreeView from '../components/fileTreeView';
 
 const drawerWidth = 400;
 
+
+interface IProps {
+  theme: any,
+}
+
+interface IState {
+  open: boolean,
+  data: any[],
+  error: boolean,
+  isLoading: boolean,
+}
+
+
+export default function Home() {
+  const theme = useTheme();
+  return <HomeThemed theme={theme} />
+}
+
+
+export class HomeThemed extends React.Component<IProps, IState> {
+
+  constructor(props: IProps) {
+    super(props);
+    this.state = {
+      open: false,
+      data: [],
+      error: false,
+      isLoading: true
+    };
+  }
+
+  componentDidMount() {
+    this.getImageData();
+  }
+
+  handleDrawerToggle = () => {
+    this.setState({open: !this.state.open});
+  }
+
+  getImageData = () => {
+    this.setState({error: false});
+    this.setState({isLoading: true});
+    fetch('/api/images', {
+      method: 'POST',
+      body: JSON.stringify({})
+    }).then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({data: result});
+          this.setState({error: false});
+          this.setState({isLoading: false});
+        },
+        (error) => {
+          this.setState({error: true});
+          this.setState({isLoading: false});
+        }
+      );
+  }
+
+  render() {
+    return (
+      <>
+        <Head>
+          <title>Media Explorer</title>
+          <meta name="description" content="Generic structure for an app" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <AppBar position="fixed"  sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+            <Toolbar>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={this.handleDrawerToggle}
+                edge="start"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">
+                Persistent drawer
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <Drawer
+            sx={{
+              width: drawerWidth,
+              flexShrink: 0,
+              '& .MuiDrawer-paper': {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+              },
+            }}
+            variant="persistent"
+            anchor="left"
+            open={this.state.open}
+          >
+            <DrawerHeader>
+              <IconButton onClick={this.handleDrawerToggle}>
+                {this.props.theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+              </IconButton>
+            </DrawerHeader>
+            <Divider />
+            <FileTreeView />
+          </Drawer>
+          <Main open={this.state.open}>
+            <DrawerHeader />
+            <ImageView data={this.state.data} error={this.state.error} isLoading={this.state.isLoading} />
+          </Main>
+          <SelectedActionsSpeedDial />
+        </Box>
+      </>
+    );
+  }
+
+}
+
+
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
 }>(({ theme, open }) => ({
@@ -138,66 +256,4 @@ export function SelectedActionsSpeedDial() {
       </StyledSpeedDial>
     </Box>
   );
-}
-
-
-export default function Home() {
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const handleDrawerToggle = () => {
-    setOpen(!open);
-  };
-  return (
-    <>
-      <Head>
-        <title>New App</title>
-        <meta name="description" content="Generic structure for an app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar position="fixed"  sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerToggle}
-              edge="start"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Persistent drawer
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-            },
-          }}
-          variant="persistent"
-          anchor="left"
-          open={open}
-        >
-          <DrawerHeader>
-            <IconButton onClick={handleDrawerToggle}>
-              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <FileTreeView />
-        </Drawer>
-        <Main open={open}>
-          <DrawerHeader />
-          <ImageView />
-        </Main>
-        <SelectedActionsSpeedDial />
-      </Box>
-    </>
-  )
 }
